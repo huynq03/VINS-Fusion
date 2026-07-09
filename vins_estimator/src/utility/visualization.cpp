@@ -31,6 +31,34 @@ static Vector3d last_path(0.0, 0.0, 0.0);
 
 size_t pub_counter = 0;
 
+static void fillOdometryCovariance(nav_msgs::Odometry &odometry)
+{
+    for (int i = 0; i < 36; i++)
+    {
+        odometry.pose.covariance[i] = 0.0;
+        odometry.twist.covariance[i] = 0.0;
+    }
+
+    const double position_variance = 0.01;
+    const double orientation_variance = 0.01;
+    const double linear_velocity_variance = 0.04;
+    const double angular_velocity_variance = 0.01;
+
+    odometry.pose.covariance[0] = position_variance;
+    odometry.pose.covariance[7] = position_variance;
+    odometry.pose.covariance[14] = position_variance;
+    odometry.pose.covariance[21] = orientation_variance;
+    odometry.pose.covariance[28] = orientation_variance;
+    odometry.pose.covariance[35] = orientation_variance;
+
+    odometry.twist.covariance[0] = linear_velocity_variance;
+    odometry.twist.covariance[7] = linear_velocity_variance;
+    odometry.twist.covariance[14] = linear_velocity_variance;
+    odometry.twist.covariance[21] = angular_velocity_variance;
+    odometry.twist.covariance[28] = angular_velocity_variance;
+    odometry.twist.covariance[35] = angular_velocity_variance;
+}
+
 void registerPub(ros::NodeHandle &n)
 {
     pub_latest_odometry = n.advertise<nav_msgs::Odometry>("imu_propagate", 1000);
@@ -65,6 +93,7 @@ void pubLatestOdometry(const Eigen::Vector3d &P, const Eigen::Quaterniond &Q, co
     odometry.twist.twist.linear.x = V.x();
     odometry.twist.twist.linear.y = V.y();
     odometry.twist.twist.linear.z = V.z();
+    fillOdometryCovariance(odometry);
     pub_latest_odometry.publish(odometry);
 }
 
@@ -141,6 +170,13 @@ void pubOdometry(const Estimator &estimator, const std_msgs::Header &header)
         odometry.twist.twist.linear.x = estimator.Vs[WINDOW_SIZE].x();
         odometry.twist.twist.linear.y = estimator.Vs[WINDOW_SIZE].y();
         odometry.twist.twist.linear.z = estimator.Vs[WINDOW_SIZE].z();
+        Eigen::Vector3d angular_velocity = estimator.gyr_0 - estimator.Bgs[WINDOW_SIZE];
+        if (!estimator.angular_velocity_buf[WINDOW_SIZE].empty())
+            angular_velocity = estimator.angular_velocity_buf[WINDOW_SIZE].back() - estimator.Bgs[WINDOW_SIZE];
+        odometry.twist.twist.angular.x = angular_velocity.x();
+        odometry.twist.twist.angular.y = angular_velocity.y();
+        odometry.twist.twist.angular.z = angular_velocity.z();
+        fillOdometryCovariance(odometry);
         pub_odometry.publish(odometry);
 
         geometry_msgs::PoseStamped pose_stamped;
