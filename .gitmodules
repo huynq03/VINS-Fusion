@@ -1,0 +1,3 @@
+[submodule "kalibr_config"]
+	path = kalibr_config
+	url = git@github.com:huynq03/vins-application.git

@@ -1,0 +1,65 @@
+%YAML:1.0
+
+# VINS-Fusion configuration generated from Kalibr bag 183222.
+imu: 1
+num_of_cam: 2
+
+imu_topic: "/camera/imu"
+image0_topic: "/camera/infra1/image_rect_raw"
+image1_topic: "/camera/infra2/image_rect_raw"
+output_path: "/home/huynq03/d435i_engcang_kalibr/data/vins_output/"
+
+cam0_calib: "left.yaml"
+cam1_calib: "right.yaml"
+image_width: 640
+image_height: 480
+
+# body_T_cam is the inverse of Kalibr T_cam_imu (T_imu_cam).
+# Values below are from d435i_kalibr_20260712_183222-camchain-imucam.yaml.
+estimate_extrinsic: 0
+body_T_cam0: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [ 0.9999888697987181, -0.0034641144818985535,
+       -0.003203153061951543, -0.00287994,
+       0.0034363619501563505, 0.9999568613630205,
+       -0.008629416525120741, 0.00684815,
+       0.00323290816904942, 0.008618313284675256,
+       0.9999576355930772, 0.01634319, 0., 0., 0., 1. ]
+
+body_T_cam1: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [ 0.9999861335742334, -0.0034790100972273788,
+       -0.003953371725387284, 0.04712087,
+       0.0034404647269389113, 0.9999468864124904,
+       -0.009715325852945864, 0.00702350,
+       0.003986961464372442, 0.009701589700127453,
+       0.9999449901347435, 0.01673006, 0., 0., 0., 1. ]
+
+multiple_thread: 1
+max_cnt: 150
+min_dist: 30
+freq: 10
+F_threshold: 1.0
+show_track: 0
+flow_back: 1
+
+# Retained in VINS-Fusion's runtime convention. Kalibr noise values are
+# preserved separately in kalibr_config/kalibr_d435i/imu-d435i.yaml.
+acc_n: 0.1
+gyr_n: 0.01
+acc_w: 0.001
+gyr_w: 0.0001
+g_norm: 9.806
+
+# Kalibr: t_imu = t_cam + 0.002370744 s (cam0).
+estimate_td: 1
+td: 0.002370744
+
+keyframe_parallax: 10.0
+load_previous_pose_graph: 0
+pose_graph_save_path: "/home/huynq03/d435i_engcang_kalibr/data/vins_output/pose_graph/"
+save_image: 0
