@@ -119,8 +119,8 @@ int main(int argc, char** argv)
 			printf("%s\n", leftImagePath.c_str() );
 			printf("%s\n", rightImagePath.c_str() );
 
-			imLeft = cv::imread(leftImagePath, CV_LOAD_IMAGE_GRAYSCALE );
-			imRight = cv::imread(rightImagePath, CV_LOAD_IMAGE_GRAYSCALE );
+			imLeft = cv::imread(leftImagePath, cv::IMREAD_GRAYSCALE );
+			imRight = cv::imread(rightImagePath, cv::IMREAD_GRAYSCALE );
 
 			double imgTime = imageTimeList[i] - baseTime;
 
@@ -141,15 +141,21 @@ int main(int argc, char** argv)
 			double navstat, numsats;
 			double velmode, orimode;
 			
-			fscanf(GPSFile, "%lf %lf %lf %lf %lf %lf ", &lat, &lon, &alt, &roll, &pitch, &yaw);
+			if (std::fscanf(GPSFile, "%lf %lf %lf %lf %lf %lf ", &lat, &lon, &alt, &roll, &pitch, &yaw) != 6 ||
+			    std::fscanf(GPSFile, "%lf %lf %lf %lf %lf ", &vn, &ve, &vf, &vl, &vu) != 5 ||
+			    std::fscanf(GPSFile, "%lf %lf %lf %lf %lf %lf ", &ax, &ay, &az, &af, &al, &au) != 6 ||
+			    std::fscanf(GPSFile, "%lf %lf %lf %lf %lf %lf ", &wx, &wy, &wz, &wf, &wl, &wu) != 6 ||
+			    std::fscanf(GPSFile, "%lf %lf %lf %lf %lf %lf ", &pos_accuracy, &vel_accuracy, &navstat, &numsats, &velmode, &orimode) != 6)
+			{
+			    printf("invalid gps file: %s\n", GPSFilePath.c_str());
+			    std::fclose(GPSFile);
+			    ROS_BREAK();
+			    return 0;
+			}
 			//printf("lat:%lf lon:%lf alt:%lf roll:%lf pitch:%lf yaw:%lf \n",  lat, lon, alt, roll, pitch, yaw);
-			fscanf(GPSFile, "%lf %lf %lf %lf %lf ", &vn, &ve, &vf, &vl, &vu);
 			//printf("vn:%lf ve:%lf vf:%lf vl:%lf vu:%lf \n",  vn, ve, vf, vl, vu);
-			fscanf(GPSFile, "%lf %lf %lf %lf %lf %lf ", &ax, &ay, &az, &af, &al, &au);
 			//printf("ax:%lf ay:%lf az:%lf af:%lf al:%lf au:%lf\n",  ax, ay, az, af, al, au);
-			fscanf(GPSFile, "%lf %lf %lf %lf %lf %lf ", &wx, &wy, &wz, &wf, &wl, &wu);
 			//printf("wx:%lf wy:%lf wz:%lf wf:%lf wl:%lf wu:%lf\n",  wx, wy, wz, wf, wl, wu);
-			fscanf(GPSFile, "%lf %lf %lf %lf %lf %lf ", &pos_accuracy, &vel_accuracy, &navstat, &numsats, &velmode, &orimode);
 			//printf("pos_accuracy:%lf vel_accuracy:%lf navstat:%lf numsats:%lf velmode:%lf orimode:%lf\n", 
 			//	    pos_accuracy, vel_accuracy, navstat, numsats, velmode, orimode);
 
@@ -187,4 +193,3 @@ int main(int argc, char** argv)
 		fclose (outFile);
 	return 0;
 }
-
